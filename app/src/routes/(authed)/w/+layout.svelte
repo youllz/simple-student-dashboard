@@ -1,7 +1,331 @@
 <script lang="ts">
 	import type { LayoutData } from './$types';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import * as Popover from '$lib/components/ui/popover';
+	import { ChevronDown, Dashboard, Table, ChevronLeft, Half2 } from 'radix-icons-svelte';
+	import { fly } from 'svelte/transition';
+	import { Label } from '$lib/components/ui/label';
+	import { Input } from '$lib/components/ui/input';
+	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
+	import * as RadioGroup from '$lib/components/ui/radio-group';
+	import * as Avatar from '$lib/components/ui/avatar';
+	import { enhance } from '$app/forms';
 
 	export let data: LayoutData;
+
+	type Create = 'workspace' | 'board' | undefined;
+
+	let create: Create = undefined;
 </script>
+
+<header class="w-full bg-muted text-muted-foreground px-4 py-3">
+	<nav class="w-full flex items-center justify-between">
+		<ul class="flex items-center gap-8">
+			<li>
+				<a href="/" class="font-bold">LOGO</a>
+			</li>
+
+			<li>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						<Button variant="secondary">
+							workspace
+							<ChevronDown class="font-bold ml-2 w-4 h-4" />
+						</Button>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="min-w-[15rem]">
+						<DropdownMenu.Group>
+							<DropdownMenu.Label>current workspace</DropdownMenu.Label>
+							<DropdownMenu.Separator />
+							<!-- <DropdownMenu.Item class="hover:bg-inherit"> -->
+							<div class="w-full flex gap-2 py-4 px-2">
+								<div class="px-3 py-1 bg-primary text-primary-foreground">T</div>
+								<span class="self-end">Text</span>
+							</div>
+							<!-- </DropdownMenu.Item> -->
+						</DropdownMenu.Group>
+						<DropdownMenu.Group>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Label>your workspace</DropdownMenu.Label>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item>
+								<a href="/">
+									<div class="flex gap-2 py-1">
+										<div class="px-3 py-1 bg-primary text-primary-foreground">T</div>
+										<span class="self-end">Text</span>
+									</div>
+								</a>
+							</DropdownMenu.Item>
+							<DropdownMenu.Item>
+								<a href="/">
+									<div class="flex gap-2 py-1">
+										<div class="px-3 py-1 bg-primary text-primary-foreground">T</div>
+										<span class="self-end">Text</span>
+									</div>
+								</a>
+							</DropdownMenu.Item>
+							<DropdownMenu.Item>
+								<a href="/">
+									<div class="flex gap-2 py-1">
+										<div class="px-3 py-1 bg-primary text-primary-foreground">T</div>
+										<span class="self-end">Text</span>
+									</div>
+								</a>
+							</DropdownMenu.Item>
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</li>
+
+			<li>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						<Button variant="secondary" class="">
+							Recent
+							<ChevronDown class="font-bold ml-2 w-4 h-4" />
+						</Button>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="min-w-[15rem]">
+						<DropdownMenu.Group>
+							<DropdownMenu.Label>current workspace</DropdownMenu.Label>
+							<DropdownMenu.Separator />
+							<!-- <DropdownMenu.Item class="hover:bg-inherit"> -->
+							<div class="w-full flex gap-2 py-4 px-2">
+								<div class="px-3 py-1 bg-primary text-primary-foreground">T</div>
+								<span class="self-end">Text</span>
+							</div>
+							<!-- </DropdownMenu.Item> -->
+						</DropdownMenu.Group>
+						<DropdownMenu.Group>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Label>your workspace</DropdownMenu.Label>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item>
+								<a href="/">
+									<div class="flex gap-2 py-1">
+										<div class="px-3 py-1 bg-primary text-primary-foreground">T</div>
+										<span class="self-end">Text</span>
+									</div>
+								</a>
+							</DropdownMenu.Item>
+							<DropdownMenu.Item>
+								<a href="/">
+									<div class="flex gap-2 py-1">
+										<div class="px-3 py-1 bg-primary text-primary-foreground">T</div>
+										<span class="self-end">Text</span>
+									</div>
+								</a>
+							</DropdownMenu.Item>
+							<DropdownMenu.Item>
+								<a href="/">
+									<div class="flex gap-2 py-1">
+										<div class="px-3 py-1 bg-primary text-primary-foreground">T</div>
+										<span class="self-end">Text</span>
+									</div>
+								</a>
+							</DropdownMenu.Item>
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</li>
+
+			<li>
+				<Popover.Root>
+					<Popover.Trigger>
+						<Button on:click={() => (create = undefined)}>create</Button>
+					</Popover.Trigger>
+					<Popover.Content class="p-0">
+						<div class="flex flex-col gap-1">
+							{#if create === undefined}
+								<button
+									on:click={() => (create = 'board')}
+									class="w-full hover:bg-accent py-2 px-2"
+								>
+									<span class="flex items-center gap-2 w-full font-bold">
+										<Dashboard />
+										Create board
+									</span>
+									<p class="text-left mt-2 text-sm">
+										A board is made up of cards ordered on lists. Use it to manage projects, track
+										information, or organize anything.
+									</p>
+								</button>
+								<button
+									on:click={() => (create = 'workspace')}
+									class="w-full hover:bg-accent py-2 px-2"
+								>
+									<span class="flex items-center gap-2 w-full font-bold">
+										<Table />
+										Create workspace
+									</span>
+									<p class="text-left mt-2 text-sm">
+										A board is made up of cards ordered on lists. Use it to manage projects, track
+										information, or organize anything.
+									</p>
+								</button>
+							{:else if create === 'workspace'}
+								<div class="full">
+									<div class="w-full flex items-center justify-between p-2">
+										<Button on:click={() => (create = undefined)} variant="ghost"
+											><ChevronLeft />
+										</Button><span> create workspace</span>
+									</div>
+									<form
+										action="?/createBoard"
+										method="POST"
+										class="w-full flex gap-4 flex-col p-2 cla"
+									>
+										<div class="flex flex-col gap-2">
+											<Label for="workspaceName">Name</Label>
+											<Input
+												type="text"
+												name="name"
+												id="workspaceName"
+												required
+												autocomplete="off"
+											/>
+										</div>
+										<div class="flex flex-col gap-2">
+											<Label for="workDescrip">Description</Label>
+											<Textarea name="description" id="workDescrip" required autocomplete="off" />
+										</div>
+									</form>
+								</div>
+							{:else if create === 'board'}
+								<div class="w-full py-2">
+									<div class="w-full flex items-center justify-between p-2">
+										<Button on:click={() => (create = undefined)} variant="ghost"
+											><ChevronLeft />
+										</Button><span> create board</span>
+									</div>
+
+									<form
+										action="?/createBoard"
+										method="POST"
+										class="w-full flex gap-4 flex-col p-2 cla"
+									>
+										<div class="flex flex-col gap-2">
+											<Label for="boardName">Name</Label>
+											<Input type="text" name="name" id="boardName" required autocomplete="off" />
+										</div>
+										<div class="flex flex-col gap-2">
+											<Label for="boardDescription">Description</Label>
+											<Textarea
+												name="description"
+												id="boardDescription"
+												required
+												autocomplete="off"
+											/>
+										</div>
+									</form>
+								</div>
+							{/if}
+						</div>
+					</Popover.Content>
+				</Popover.Root>
+			</li>
+		</ul>
+
+		<ul class="flex items-center gap-4">
+			<li>
+				<Popover.Root>
+					<Popover.Trigger>
+						<Button variant="ghost">
+							<Half2 class="w-6 h-6" />
+						</Button>
+					</Popover.Trigger>
+					<Popover.Content class="p-0">
+						<form  class="w-full" method="POST" use:enhance>
+							<RadioGroup.Root value="system">
+								<div class="flex items-center space-x-2">
+									<!-- <button> -->
+										<Label for="light" class="w-full flex items-center gap-2 hover:bg-accent p-3">
+											<RadioGroup.Item type="submit" formaction="?/theme&theme=light" name="theme" value="light" id="light" />
+											<div class="w-[4rem] h-[4rem]">
+												<img
+													src="/light-theme.svg"
+													alt="theme"
+													class="object-cover w-full h-full rounded-sm"
+												/>
+											</div>
+											<span>light</span>
+										</Label>
+									<!-- </button> -->
+								</div>
+								<div class="flex items-center space-x-2">
+									<Label for="dark" class="w-full flex items-center gap-2 hover:bg-accent p-3">
+										<RadioGroup.Item type="submit" formaction="?/theme&theme=dark" name="theme" value="dark" id="dark" />
+										<div class="w-[4rem] h-[4rem]">
+											<img
+												src="/dark-theme.svg"
+												alt="theme"
+												class="object-cover w-full h-full rounded-sm"
+											/>
+										</div>
+										<span>dark</span>
+									</Label>
+								</div>
+								<div class="flex items-center space-x-2">
+									<Label for="system" class="w-full flex items-center gap-2 hover:bg-accent p-3">
+										<RadioGroup.Item  type="submit"  formaction="?/theme&theme=system" name="theme" value="system" id="system" />
+										<div class="w-[4rem] h-[4rem]">
+											<img
+												src="/auto-theme.svg"
+												alt="theme"
+												class="object-cover w-full h-full rounded-sm"
+											/>
+										</div>
+										<span>system</span>
+									</Label>
+								</div>
+								<RadioGroup.Input name="theme" />
+							</RadioGroup.Root>
+						</form>
+					</Popover.Content>
+				</Popover.Root>
+			</li>
+			<li>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						<Avatar.Root class="w-[1.5rem] h-[1.5rem] m-0 p-0">
+							<!-- <Avatar.Image src="https://github.com/shadcn.png" alt="@shadcn" /> -->
+							<Avatar.Fallback>CN</Avatar.Fallback>
+						</Avatar.Root>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="min-w-[15rem]">
+						<DropdownMenu.Group>
+							<DropdownMenu.Label>
+								<small class="text-[0.8rem] opacity-80">ACCOUNT</small>
+								<div class="w-full flex gap-2 justify-start mt-3">
+									<Avatar.Root class="w-[3rem] h-[3rem]">
+										<!-- <Avatar.Image src="https://github.com/shadcn.png" alt="@shadcn" /> -->
+										<Avatar.Fallback>CN</Avatar.Fallback>
+									</Avatar.Root>
+									<div class="flex flex-col text-sm self-end">
+										<span class="text-[0.8rem]">youssef</span>
+										<span class="text-[0.8rem]" >youssef@gmail.com</span>
+									</div>
+								</div>
+							</DropdownMenu.Label>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item>Profile</DropdownMenu.Item>
+							<DropdownMenu.Item>Activity</DropdownMenu.Item>
+							<DropdownMenu.Separator />
+							<form action="/logout" method="GET">
+								<DropdownMenu.Item>
+									<button type="submit">
+										Log out
+									</button>
+								</DropdownMenu.Item>
+							</form>
+							
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</li>
+		</ul>
+	</nav>
+</header>
 
 <slot><!-- optional fallback --></slot>
