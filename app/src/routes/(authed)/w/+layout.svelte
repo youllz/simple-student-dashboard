@@ -19,7 +19,7 @@
 	let create: Create = undefined;
 </script>
 
-<header class="w-full bg-muted text-muted-foreground px-4 py-3">
+<header class="w-full bg-muted text-muted-foreground px-4 py-3 fixed top-0">
 	<nav class="w-full flex items-center justify-between">
 		<ul class="flex items-center gap-8">
 			<li>
@@ -172,23 +172,27 @@
 										</Button><span> create workspace</span>
 									</div>
 									<form
-										action="?/createBoard"
+										action="?/createWorkspace"
 										method="POST"
 										class="w-full flex gap-4 flex-col p-2 cla"
 									>
 										<div class="flex flex-col gap-2">
-											<Label for="workspaceName">Name</Label>
+											<Label for="workspaceName">Name *</Label>
 											<Input
 												type="text"
 												name="name"
 												id="workspaceName"
 												required
 												autocomplete="off"
+												 placeholder="workspace name" 
 											/>
 										</div>
 										<div class="flex flex-col gap-2">
-											<Label for="workDescrip">Description</Label>
-											<Textarea name="description" id="workDescrip" required autocomplete="off" />
+											<Label for="workDescrip">Description (optional)</Label>
+											<Textarea name="description" id="workDescrip" required autocomplete="off" placeholder="workspace description" />
+										</div>
+										<div>
+											<Button type="submit" class="w-full">Create</Button>
 										</div>
 									</form>
 								</div>
@@ -206,17 +210,21 @@
 										class="w-full flex gap-4 flex-col p-2 cla"
 									>
 										<div class="flex flex-col gap-2">
-											<Label for="boardName">Name</Label>
-											<Input type="text" name="name" id="boardName" required autocomplete="off" />
+											<Label for="boardName">Name *</Label>
+											<Input type="text" name="name" id="boardName" required placeholder="board name" autocomplete="off" />
 										</div>
 										<div class="flex flex-col gap-2">
-											<Label for="boardDescription">Description</Label>
+											<Label for="boardDescription">Description (optional)</Label>
 											<Textarea
 												name="description"
 												id="boardDescription"
 												required
 												autocomplete="off"
+												placeholder="board description"
 											/>
+										</div>
+										<div>
+											<Button type="submit" class="w-full">Create</Button>
 										</div>
 									</form>
 								</div>
@@ -228,7 +236,7 @@
 		</ul>
 
 		<ul class="flex items-center gap-4">
-			<li>
+			<!-- <li>
 				<Popover.Root>
 					<Popover.Trigger>
 						<Button variant="ghost">
@@ -239,7 +247,6 @@
 						<form  class="w-full" method="POST" use:enhance>
 							<RadioGroup.Root value="system">
 								<div class="flex items-center space-x-2">
-									<!-- <button> -->
 										<Label for="light" class="w-full flex items-center gap-2 hover:bg-accent p-3">
 											<RadioGroup.Item type="submit" formaction="?/theme&theme=light" name="theme" value="light" id="light" />
 											<div class="w-[4rem] h-[4rem]">
@@ -251,7 +258,6 @@
 											</div>
 											<span>light</span>
 										</Label>
-									<!-- </button> -->
 								</div>
 								<div class="flex items-center space-x-2">
 									<Label for="dark" class="w-full flex items-center gap-2 hover:bg-accent p-3">
@@ -284,7 +290,7 @@
 						</form>
 					</Popover.Content>
 				</Popover.Root>
-			</li>
+			</li> -->
 			<li>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
@@ -328,4 +334,13 @@
 	</nav>
 </header>
 
-<slot><!-- optional fallback --></slot>
+
+<main class="min-h-[100dvh] w-full pt-20 px-[5vw] flex  ">
+	<aside class="w-[14rem] max-h-full flex-shrink">
+
+	</aside>
+	<section class="w-full flex-grow min-h-full ">
+		<slot><!-- optional fallback --></slot>
+
+	</section>
+</main>

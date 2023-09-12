@@ -11,10 +11,12 @@ export const actions: Actions = {
 
     
     if(theme) {
-      // console.log(theme)
-      cookies.set("colorTheme", theme, {
+      console.log(theme)
+      cookies.set('colorTheme', theme, {
         path: '/',
-        maxAge: 60 * 60 * 24 * 365
+        maxAge: 60 * 60 * 24 * 365,
+        secure: false,
+        httpOnly: false
       })
     }
   }

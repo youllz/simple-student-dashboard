@@ -4,9 +4,12 @@ import { registerSchema } from "./schema";
 import { fail } from '@sveltejs/kit';
 
 
-export const load = (async () => {
+export const load = (async ({locals}) => {
+
+
   return {
-    loginForm: superValidate(registerSchema)
+    loginForm: superValidate(registerSchema),
+   
   };
 }) satisfies PageServerLoad;
 
@@ -14,7 +17,6 @@ export const actions: Actions = {
   default: async (event) => {
     const loginForm = await superValidate(event, registerSchema);
 
-    console.log(loginForm)
 
     if (!loginForm.valid) {
       return fail(400, {
@@ -28,16 +30,7 @@ export const actions: Actions = {
     let emailFound = false
 
     try {
-      const users = await event.locals.pb.collection('users').getFullList()
-      // console.log(users)
-
-      for (let i = 0; i < users.length; i++) {
-        if (users[i].email === loginForm.data.email) {
-          emailFound = true
-          console.log(emailFound)
-          return fail(400, { loginForm, message: 'this email already use' })
-        }
-      }
+     
       await event.locals.pb.collection('users').create(loginForm.data)
 
     } catch (err) {
