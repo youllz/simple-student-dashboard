@@ -25,18 +25,21 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import toast, { Toaster } from 'svelte-french-toast';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	export let data: LayoutData;
 
-	$: ({ allUserWorkspaces } = data);
-
 	type Create = 'workspace' | 'board' | undefined;
+
+	$: ({ allUserWorkspaces } = data);
+	$: currentWorkspave = data.allUserWorkspaces.find((item) => item.id === $page.params.wId);
+	$: selectWorkspace = allUserWorkspaces.filter((item) => item.id !== currentWorkspave?.id);
 
 	let create: Create = undefined;
 	let formIsValid = true;
 	let dropdMenuValue = $page.params.wId;
+	let boardNameIsValid = true;
 
 	const createFormCheck: SubmitFunction = ({ cancel, formData }) => {
 		const form = Object.fromEntries(formData) as { name: string; description: string };
@@ -64,6 +67,31 @@
 						duration: 2000
 					});
 					break;
+			}
+		};
+	};
+
+	const createBoardForm: SubmitFunction = ({ cancel, formData }) => {
+		const form = Object.fromEntries(formData) as Record<string, string>;
+
+		if (form.name.length < 2) {
+			boardNameIsValid = false;
+			cancel();
+		}
+
+		return async ({ result, update }) => {
+			switch (result.status) {
+				case 200:
+					await invalidateAll();
+					await update({ reset: true });
+					//@ts-ignore
+					toast.success(result.data.message);
+					//@ts-ignore
+					await goto(`/w/${currentWorkspave?.id}/b/${result.data.boardId}`);
+					break;
+				case 400:
+					//@ts-ignore
+					toast.error(result.data.message);
 			}
 		};
 	};
@@ -223,8 +251,9 @@
 											</Button><span> create workspace</span>
 										</div>
 										<form
-											action="?/createWorkspace"
+											action="/w/?/createWorkspace "
 											method="POST"
+											use:enhance={createFormCheck}
 											class="w-full flex gap-4 flex-col p-2 cla"
 										>
 											<div class="flex flex-col gap-2">
@@ -237,6 +266,9 @@
 													autocomplete="off"
 													placeholder="workspace name"
 												/>
+												{#if !formIsValid}
+													<small class="text-destructive">minimal character</small>
+												{/if}
 											</div>
 											<div class="flex flex-col gap-2">
 												<Label for="workDescrip">Description (optional)</Label>
@@ -261,8 +293,9 @@
 										</div>
 
 										<form
-											action="?/createBoard"
+											action="/w/?/createBoard"
 											method="POST"
+											use:enhance={createBoardForm}
 											class="w-full flex gap-4 flex-col p-2 cla"
 										>
 											<div class="flex flex-col gap-2">
@@ -275,6 +308,9 @@
 													placeholder="board name"
 													autocomplete="off"
 												/>
+												{#if !boardNameIsValid}
+													<small class="text-destructive">minimal character</small>
+												{/if}
 											</div>
 											<div class="flex flex-col gap-2">
 												<Label for="boardDescription">Description (optional)</Label>
@@ -285,6 +321,26 @@
 													placeholder="board description"
 												/>
 											</div>
+											<div class="w-full grid gap-2">
+												<Label for="workspaceId" class="w-full grid gap-2">workspace</Label>
+												<select
+													name="workspaceId"
+													id="workspaceId"
+													class="mt-1.5 w-full rounded-lg py-2.5 px-2 border-input border bg-background text-foreground sm:text-sm"
+												>
+													<option
+														class="bg-background text-foreground text-[1rem]"
+														value={currentWorkspave?.id}>{currentWorkspave?.name}</option
+													>
+													{#each selectWorkspace as workspace}
+														<option
+															class="bg-background text-foreground text-[1rem]"
+															value={workspace?.id}>{workspace?.name}</option
+														>
+													{/each}
+												</select>
+											</div>
+
 											<div>
 												<Button type="submit" class="w-full">Create</Button>
 											</div>
