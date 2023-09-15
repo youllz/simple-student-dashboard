@@ -2,7 +2,7 @@
 	import type { LayoutData } from './$types';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Button } from '$lib/components/ui/button';
-	import { ChevronDown, ChevronLeft, Dashboard, Table } from 'radix-icons-svelte';
+	import { ChevronDown, ChevronLeft, Dashboard, Plus, Table } from 'radix-icons-svelte';
 	import * as Popover from '$lib/components/ui/popover';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
@@ -11,8 +11,9 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { page } from '$app/stores';
 	import toast, { Toaster } from 'svelte-french-toast';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { enhance } from '$app/forms';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
 
 	export let data: LayoutData;
 
@@ -21,10 +22,12 @@
 	$: currentWorkspace = data.allUserWorkspaces.find((item) => item.id === $page.params.wId);
 	$: ({ allUserWorkspaces } = data);
 	$: selectWorkspace = allUserWorkspaces.filter((item) => item.id !== currentWorkspace?.id);
+	$: ({ currentBoardCourses } = data);
 
 	let create: Create = undefined;
 	let formIsValid = true;
 	let boardNameIsValid = true;
+	let courseNameIsValid = true;
 
 	const createFormCheck: SubmitFunction = ({ cancel, formData }) => {
 		const form = Object.fromEntries(formData) as { name: string; description: string };
@@ -78,6 +81,34 @@
 				case 400:
 					//@ts-ignore
 					toast.error(result.data.message);
+			}
+		};
+	};
+
+	const addCourseForm: SubmitFunction = ({ formData, cancel }) => {
+		const form = Object.fromEntries(formData) as Record<string, string>;
+
+		if (form.name.length < 2) {
+			courseNameIsValid = false;
+			cancel();
+		}
+
+		return async ({ result, update }) => {
+			switch (result.status) {
+				case 200:
+					await invalidateAll();
+					await update({ reset: true });
+					toast.success('successful');
+					//@ts-ignore
+					await goto(`/w/${$page.params.wId}/b/${$page.params.bId}/c/${result.data.courseId}`);
+					break;
+
+				case 400:
+					await update({ reset: false });
+					toast.error('Fail to add course', {
+						duration: 2000
+					});
+					break;
 			}
 		};
 	};
@@ -261,7 +292,7 @@
 												placeholder="workspace name"
 											/>
 											{#if !formIsValid}
-												<small class="text-destructive">minimal character</small>
+												<small class="text-destructive">minimal 2 character</small>
 											{/if}
 										</div>
 										<div class="flex flex-col gap-2">
@@ -443,6 +474,108 @@
 	</nav>
 </header>
 
-<main>
-	<aside />
+<main class="w-full min-h-[100dvh] flex pt-14">
+	<aside class="w-[20rem] flex-shrink-0 min-h-full">
+		<div class="p-3 w-full flex justify-between items-center">
+			<div class="flex gap-2">
+				<Button class="fon-bold">t</Button>
+				<span class="self-end">test</span>
+			</div>
+			<Button variant="secondary" size="icon">
+				<ChevronLeft />
+			</Button>
+		</div>
+		<Separator />
+		<div class="w-full pt-2">
+			<Button class="w-full justify-start gap-2 " variant="ghost">
+				<Dashboard />
+				Boards
+			</Button>
+		</div>
+		<div class="w-full flex items-center justify-between p-3">
+			<span class="font-Bold">Your courses</span>
+			<span>
+				<Popover.Root>
+					<Popover.Trigger>
+						<Button variant="ghost" size="icon">
+							<Plus />
+						</Button>
+					</Popover.Trigger>
+					<Popover.Content>
+						<div class="w-full">
+							<span class="text-sm">Add courses</span>
+						</div>
+						<!-- ADD COURSE -->
+						<form
+							use:enhance={addCourseForm}
+							action="/w/{$page.params.wId}/b/{$page.params.bId}?/addCourse"
+							method="POST"
+							class="w-ful grid gap-4 mt-8"
+						>
+							<div class="grid gap-2">
+								<Label for="name">Name *</Label>
+								<Input
+									type="text"
+									id="name"
+									name="name"
+									required
+									autocomplete="off"
+									placeholder="course name"
+									on:input={() => (courseNameIsValid = true)}
+								/>
+								{#if !courseNameIsValid}
+									<small class="text-destructive">minimal 2 character</small>
+								{/if}
+							</div>
+							<div class="grid gap-2">
+								<Label for="coefficient">Coefficient</Label>
+								<Input
+									type="number"
+									id="coefficient"
+									name="coefficient"
+									min="1"
+									value="1"
+									required
+									autocomplete="off"
+									placeholder="course coefficient"
+								/>
+							</div>
+							<div class="grid gap-2">
+								<Label for="name">Description (optional)</Label>
+								<Textarea
+									id="description"
+									autocomplete="off"
+									name="description"
+									placeholder="course description"
+								/>
+							</div>
+							<div>
+								<Button class="w-full">Add</Button>
+							</div>
+						</form>
+					</Popover.Content>
+				</Popover.Root>
+			</span>
+		</div>
+		<ul class="w-full h-[76.8%] overflow-y-auto">
+			{#each currentBoardCourses as course}
+				<li class="w-full">
+					<Button
+						variant={`/w/${$page.params.wId}/b/${$page.params.bId}/c/${course.id}` ===
+						$page.url.pathname
+							? 'secondary'
+							: 'ghost'}
+						href="/w/{$page.params.wId}/b/{$page.params.bId}/c/{course.id}"
+						class="w-full justify-start"
+					>
+						{course.name}
+					</Button>
+				</li>
+			{/each}
+		</ul>
+	</aside>
+
+	<section class="flex-grow min-h-full bg-black">
+		<slot />
+	</section>
 </main>
